@@ -115,6 +115,12 @@ with tempfile.TemporaryDirectory(prefix='bgv-') as temporary:
         assert not key(' ')
         spin(lambda: committed == ['tiếng'])
         print('PASS: key events -> preedit tiếng -> committed tiếng')
+        for char, expected in zip('oiw', ('o', 'oi', 'ơi')):
+            assert key(char)
+            spin(lambda: preedit[-1] == expected)
+        assert not key(' ')
+        spin(lambda: committed[-1] == 'ơi')
+        print('PASS: delayed w transforms oi into ơi and commits through IBus')
         for char in 'Vieetj':
             key(char)
         assert key(IBus.KEY_BackSpace)

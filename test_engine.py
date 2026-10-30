@@ -121,6 +121,22 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(self.engine.committed, ["tiếng"])
         self.assertEqual(self.engine.preedit, "")
 
+    def test_delayed_w_in_all_typing_modes(self):
+        for mode in ("preedit", "direct", "forward"):
+            with self.subTest(mode=mode):
+                self.engine.do_reset()
+                self.engine.document = ""
+                self.engine.cursor = self.engine.anchor = 0
+                self.engine.committed.clear()
+                self.engine.capabilities = IBus.Capabilite.SURROUNDING_TEXT if mode == "direct" else 0
+                self.engine.settings.update(typing_mode=mode)
+                for char, expected in zip("oiws", ("o", "oi", "ơi", "ới")):
+                    self.assertTrue(self.key(char))
+                    actual = self.engine.preedit if mode == "preedit" else self.engine.document
+                    self.assertEqual(actual, expected)
+                self.assertFalse(self.key(" "))
+                self.assertEqual(self.engine.document, "ới")
+
     def test_backspace(self):
         self.type_word("Vieetj")
         self.assertTrue(self.key(IBus.KEY_BackSpace))

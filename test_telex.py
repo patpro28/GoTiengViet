@@ -36,6 +36,23 @@ class ComposerTests(unittest.TestCase):
                     with self.subTest(typed=typed):
                         self.assertEqual(compose(typed), expected)
 
+    def test_delayed_w_before_final_glide(self):
+        examples = {
+            "oiw": "ơi", "hoiw": "hơi", "toiw": "tơi",
+            "uiw": "ưi", "guiwr": "gửi", "ayw": "ăy",
+            "oiww": "oiw", "uiww": "uiw", "ayww": "ayw",
+            "ooiw": "ôiw", "eiw": "eiw", "giw": "giw",
+        }
+        for raw, expected in examples.items():
+            for upper in (False, True):
+                typed = raw.upper() if upper else raw
+                with self.subTest(typed=typed):
+                    self.assertEqual(compose(typed), expected.upper() if upper else expected)
+        for key, mark in {"s":"\u0301", "f":"\u0300", "r":"\u0309", "x":"\u0303", "j":"\u0323"}.items():
+            for raw in ("oiw" + key, "oi" + key + "w"):
+                with self.subTest(raw=raw):
+                    self.assertEqual(compose(raw), unicodedata.normalize("NFC", "ơ" + mark) + "i")
+
     def test_backspace_deletes_displayed_character(self):
         composer = Telex()
         for char in "tieengs":

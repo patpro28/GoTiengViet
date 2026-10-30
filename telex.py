@@ -118,6 +118,11 @@ class Telex:
                     self._set(a, "ư")
                     self._set(b, "ơ")
                 return True
+        # A trailing i/y is a glide: oiw -> ơi, uiw -> ưi, ayw -> ăy.
+        # Keep the same target on a repeated w so oiww escapes to oiw.
+        if (len(indices) > 1 and self.letters[last].lower() in "iy"
+                and indices[-2] == last - 1):
+            last = indices[-2]
         current = self.letters[last].lower()
         replacements = {"a": "ă", "o": "ơ", "u": "ư"}
         reverse = {v: k for k, v in replacements.items()}
